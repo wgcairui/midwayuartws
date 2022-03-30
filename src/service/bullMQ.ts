@@ -36,23 +36,16 @@ export class MQ {
     /**
      * 接受uartserver发送的事件
      */
-    new Worker('wsOutput', this.initWork, {
+    new Worker('wsOutput', async ({ data }: Job<WsEvent>, id: string) => {
+      const { token, event } = data;
+      const socket = this.socketMap.get(token);
+      if (socket) {
+        const data: { type: string, data: any } = { type: event, data: {} }
+        socket.send(JSON.stringify(data));
+      }
+    }, {
       connection: this.redis.redisService,
     });
-  }
-
-  /**
-   * 初始化消费程序
-   * @param job 队列信息
-   * @param id 队列id
-   */
-  private async initWork({ data }: Job<WsEvent>, id: string) {
-    console.log({ data, id });
-    const { token, event } = data;
-    const socket = this.socketMap.get(token);
-    if (socket) {
-      socket.send(event);
-    }
   }
 
   /**

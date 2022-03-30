@@ -25,8 +25,6 @@ export class HelloSocketController {
   @OnWSMessage('message')
   async gotMessage(data: Buffer) {
     const obj = data.toString();
-    console.log({ obj });
-
     if (/^{.*}$/.test(obj)) {
       const data = JSON.parse(obj) as WsEvent;
       if (!data.token) throw new Error('message Error');
